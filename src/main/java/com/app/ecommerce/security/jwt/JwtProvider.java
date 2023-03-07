@@ -1,8 +1,5 @@
 package com.app.ecommerce.security.jwt;
 import com.app.ecommerce.security.entity.MainUser;
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.JWTParser;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,17 +19,14 @@ public class JwtProvider {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration}")
-    private int expiration;
-
     public String generateToken(Authentication authentication){
         MainUser mainUser = (MainUser) authentication.getPrincipal();
         List<String> roles = mainUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
         return Jwts.builder()
                 .setSubject(mainUser.getUsername())
                 .claim("roles", roles)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + expiration))
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
                 .signWith(SignatureAlgorithm.HS512, secret.getBytes())
                 .compact();
     }
@@ -47,31 +40,17 @@ public class JwtProvider {
             Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token);
             return true;
         }catch (MalformedJwtException e){
-            logger.error("token mal formado");
+            logger.error("token malformed");
         }catch (UnsupportedJwtException e){
-            logger.error("token no soportado");
+            logger.error("token unsupported");
         }catch (ExpiredJwtException e){
-            logger.error("token expirado");
+            logger.error("token expired");
         }catch (IllegalArgumentException e){
-            logger.error("token vacío");
+            logger.error("empty token");
         }catch (SignatureException e){
-            logger.error("fail en la firma");
+            logger.error("bad signature");
         }
         return false;
     }
 
-    public String refreshToken(JwtDto jwtDto) throws ParseException {
-        JWT jwt = JWTParser.parse(jwtDto.getToken());
-        JWTClaimsSet claims = jwt.getJWTClaimsSet();
-        String nombreUsuario = claims.getSubject();
-        List<String> roles = (List<String>)claims.getClaim("roles");
-
-        return Jwts.builder()
-                .setSubject(nombreUsuario)
-                .claim("roles", roles)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + expiration))
-                .signWith(SignatureAlgorithm.HS512, secret.getBytes())
-                .compact();
-    }
 }
