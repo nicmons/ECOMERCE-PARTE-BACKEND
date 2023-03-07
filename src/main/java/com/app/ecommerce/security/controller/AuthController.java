@@ -12,7 +12,6 @@ import com.app.ecommerce.security.service.RolService;
 import com.app.ecommerce.security.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,9 +42,9 @@ public class AuthController {
     @PostMapping("/create")
     public ResponseEntity<?> nuevo(@Valid @RequestBody NewUser newUser, BindingResult bindingResult){
         if(bindingResult.hasErrors())
-            return new ResponseEntity(new Message("wrongly set fields or invalid email"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Message("wrongly set fields or invalid email"), HttpStatus.BAD_REQUEST);
         if(userService.existsByUsername(newUser.getUsername()))
-            return new ResponseEntity(new Message("the name already exists"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Message("the name already exists"), HttpStatus.BAD_REQUEST);
 
         User user =
                 new User(newUser.getUsername(),
@@ -56,30 +55,30 @@ public class AuthController {
             roles.add(rolService.getByRolNombre(RolName.ROLE_ADMIN).get());
         user.setRoles(roles);
         userService.save(user);
-        return new ResponseEntity(new Message("user created"), HttpStatus.CREATED);
+        return new ResponseEntity<>(new Message("user created"), HttpStatus.CREATED);
     }
 
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody NewUser newUser, BindingResult bindingResult) {
         if (!userService.existsByUsername(newUser.getUsername()))
-            return new ResponseEntity(new Message("does not exist"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new Message("does not exist"), HttpStatus.NOT_FOUND);
 
         User user = userService.getOne(id).get();
         user.setUsername(newUser.getUsername());
         user.setPassword(passwordEncoder.encode(newUser.getPassword()));
 
         userService.save(user);
-        return new ResponseEntity(new Message("updated user"), HttpStatus.OK);
+        return new ResponseEntity<>(new Message("updated user"), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") int id) {
         if (!userService.existsById(id))
-            return new ResponseEntity(new Message("does not exist"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new Message("does not exist"), HttpStatus.NOT_FOUND);
         userService.delete(id);
-        return new ResponseEntity(new Message("user deleted"), HttpStatus.OK);
+        return new ResponseEntity<>(new Message("user deleted"), HttpStatus.OK);
     }
 
     @PostMapping("/login")
@@ -91,6 +90,6 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtProvider.generateToken(authentication);
         JwtDto jwtDto = new JwtDto(jwt);
-        return new ResponseEntity(jwtDto, HttpStatus.OK);
+        return new ResponseEntity<>(jwtDto, HttpStatus.OK);
     }
 }
