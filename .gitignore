@@ -34,3 +34,6 @@ build/
 
 # dependencies
 chat/node_modules
+
+# dependencias wwebjs -- npm i whatsapp-web.js  
+chat/.wwebjs.js
