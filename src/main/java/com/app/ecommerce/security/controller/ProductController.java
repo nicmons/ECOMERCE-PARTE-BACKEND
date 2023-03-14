@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author Leona
  */
 @Controller
-@RequestMapping("/administration")
+@RequestMapping("/product")
 public class ProductController {
     @Autowired
     private ProductService servisProducto;
     
     @GetMapping("/panel")
     public String initPageAdmin(){
-        return "/administration/panelAdmin.html";
+        return "panelAdmin.html";
     }
 }
