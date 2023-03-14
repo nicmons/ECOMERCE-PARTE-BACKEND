@@ -2,11 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.app.ecommerce.security.service;
+package com.app.ecommerce.service;
 
-import com.app.ecommerce.security.entity.Picture;
-import com.app.ecommerce.security.repository.ProductRepository;
-import com.app.ecommerce.security.entity.Product;
+import com.app.ecommerce.entity.Picture;
+import com.app.ecommerce.repository.ProductRepository;
+import com.app.ecommerce.entity.Product;
 import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
